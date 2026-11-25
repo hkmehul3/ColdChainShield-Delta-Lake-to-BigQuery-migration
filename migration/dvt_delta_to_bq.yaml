@@ -1,0 +1,38 @@
+# Google Data Validation Tool (DVT) Parity Config: Delta Staging -> BigQuery Native
+source:
+  type: BigQuery
+  project_id: chronos-grid-prod
+
+target:
+  type: BigQuery
+  project_id: chronos-grid-prod
+
+validations:
+  - type: Column
+    table_name: chronos_grid_staging.ext_coldchain_delta_stage
+    target_table_name: chronos_grid_prod.coldchain_thermal_excursions
+    primary_keys:
+      - reading_id
+    aggregates:
+      - field_alias: count_readings
+        source_column: reading_id
+        target_column: reading_id
+        type: count
+      - field_alias: sum_excursion_minutes
+        source_column: excursion_minutes
+        target_column: excursion_minutes
+        type: sum
+      - field_alias: max_temp_deviation
+        source_column: temp_deviation_c
+        target_column: temp_deviation_c
+        type: max
+    threshold: 0.0
+
+  - type: Row
+    table_name: chronos_grid_staging.ext_coldchain_delta_stage
+    target_table_name: chronos_grid_prod.coldchain_thermal_excursions
+    primary_keys:
+      - reading_id
+    hash:
+      - migration_row_hash
+    threshold: 0.0
